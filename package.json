@@ -1,0 +1,29 @@
+{
+  "name": "@labzdjee/object-browse",
+  "version": "1.0.0",
+  "description": "deep analyze of an object and sub-object maker",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LabZDjee/object-browse.git"
+  },
+  "keywords": [
+    "deep",
+    "scan",
+    "literal",
+    "object"
+  ],
+  "author": "Gerard Gauthier",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LabZDjee/object-browse/issues"
+  },
+  "homepage": "https://github.com/LabZDjee/object-browse#readme",
+  "devDependencies": {
+    "chalk": "^4.0.0",
+    "lodash": "^4.17.15"
+  }
+}
