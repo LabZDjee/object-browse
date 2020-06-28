@@ -4,6 +4,8 @@ Purpose of this ECMAScript library is to deeply examine an object through proces
 
 Making a sub-object with `makeSubObjectFrom` is indeed the main drive for this library. However, `objectBrowse` processor is exposed for possible purposes where it could help in deep-examination of an object
 
+As a bonus, another function is provided `objectIncludes` which helps deeply compare properties and values of two objects
+
 # `objectBrowse ` 
 
 Prototype: `objectBrowse (object, processor, initialValue)`with:
@@ -93,6 +95,8 @@ Values from source cover [every JSON type](https://en.wikipedia.org/wiki/JSON#Da
 
 If some property in `pattern` is not found in `source`, the function with throw a generic error with a message explicating what property was missing
 
+Note: using `makeSubObjectFrom` when `pattern` and `source` are equal (in reference or value), is a way to clone an object
+
 ## Example
 
 ```javascript
@@ -126,4 +130,21 @@ will produce the following result:
   }
 }
 ```
+
+# `objectIncludes`
+
+Prototype: `objectIncludes(inclusiveObject, includedObject)` with:
+
+- `inclusiveObject`: the object which must deeply include properties and values of `includedObject`
+- `includedObject`: the object which properties and values must be contained in `inclusiveObject`
+
+Return value is `true` in case of successful comparison or if not successful, a string like the following ones is returned:
+
+- `wrong base type: one is an array, the other is not`
+- `inclusiveObject has no property "x.y.z"`
+- `compared object values at property "x.y.z" differ`
+
+Properties *x.y.z* above are just examples
+
+Note: `objectIncludes` is a base function as a means to deeply compare objects with the benefit an explicit error message is returned in case of non success . To do this deep compare `objectIncludes` must be called two times swapping objects and expecting a `true` outcome in each case
 

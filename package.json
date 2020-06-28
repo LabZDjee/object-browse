@@ -1,6 +1,6 @@
 {
   "name": "@labzdjee/object-browse",
-  "version": "1.0.2",
+  "version": "1.2.0",
   "description": "deep analyzation of an object and sub-object maker",
   "main": "index.js",
   "scripts": {

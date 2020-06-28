@@ -1,5 +1,7 @@
 /* jshint esversion: 6 */
 
+const { isArray } = require("lodash");
+
 exports.objectBrowse = function (object, processor, initialValue) {
   const exceptionMessage = "Exception Message";
   const iter = processor(initialValue);
@@ -79,9 +81,7 @@ function* makeSubObjectFromGenerator(initialValue) {
   const initialValuePointers = [initialValue];
   while (true) {
     const { prop, type, level } = yield { result: resultPointers[0] };
-    while (level < resultPointers.length - 1) {
-      resultPointers.pop();
-    }
+    resultPointers.length = level;
     const zeroBasedLevel = level - 1;
     const currentInitialValuePointer = initialValuePointers[zeroBasedLevel];
     if (!currentInitialValuePointer.hasOwnProperty(prop)) {
@@ -105,4 +105,40 @@ function* makeSubObjectFromGenerator(initialValue) {
 
 exports.makeSubObjectFrom = function (pattern, source) {
   return exports.objectBrowse(pattern, makeSubObjectFromGenerator, source);
+};
+
+function* objectIncludesGenerator(initialValue) {
+  const initialValueNotObject = typeof initialValue !== "object";
+  const initialValueNotObjectMsg = `inclusiveObject in objectIncludes has wrong type (${typeof initialValue}) instead of object`;
+  if (initialValueNotObject) {
+    return initialValueNotObjectMsg;
+  }
+  const { type } = yield { result: true };
+  if ((isArray(initialValue) && type !== 2) || (!isArray(initialValue) && type === 2)) {
+    return "wrong base type: one is an array, the other is not";
+  }
+  const initialValuePointers = [initialValue];
+  const props = [];
+  while (true) {
+    const { prop, type, level, value } = yield { result: true };
+    const zeroBasedLevel = level - 1;
+    if (zeroBasedLevel >= 0) {
+      props[zeroBasedLevel] = prop;
+    }
+    props.length = level;
+    const currentInitialValuePointer = initialValuePointers[zeroBasedLevel];
+    if (!currentInitialValuePointer.hasOwnProperty(prop)) {
+      return `inclusiveObject has no property "${props.join(".")}"`;
+    }
+    initialValuePointers[level] = currentInitialValuePointer[prop];
+    if (type === 0) {
+      if (value !== currentInitialValuePointer[prop]) {
+        return `compared object values at property "${props.join(".")}" differ`;
+      }
+    }
+  }
+}
+
+exports.objectIncludes = function (inclusiveObject, includedObject) {
+  return exports.objectBrowse(includedObject, objectIncludesGenerator, inclusiveObject).result;
 };

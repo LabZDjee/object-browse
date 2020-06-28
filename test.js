@@ -1,6 +1,6 @@
 /* jshint esversion: 6 */
 
-const { objectBrowse, makeSubObjectFrom } = require("./index");
+const { objectBrowse, makeSubObjectFrom, objectIncludes } = require("./index");
 
 const { greenBright, red, redBright, yellow } = require("chalk");
 const _ = require("lodash");
@@ -203,6 +203,48 @@ if (testResult.completed !== false) {
   gotError(`: should find "${sourceHasWrongType}" in result message when wrong. Instead got: ${testResult.result}`);
 } else {
   console.log(` ok, got message which includes "${sourceHasWrongType}"`);
+}
+stepHeader("test objectIncludes on two objects");
+testResult = objectIncludes({ a: 1, b: { b: 21, c: 22 }, c: 3 }, { a: 1, b: { b: 21, c: 22 } });
+if (testResult !== true) {
+  gotError(`: got unexpected result "${testResult}"`);
+} else {
+  console.log(" ok, got true");
+}
+stepHeader("test objectIncludes on two arrays");
+testResult = objectIncludes([1, [21, 22], 3], [1, [21, 22]]);
+if (testResult !== true) {
+  gotError(`: got unexpected result "${testResult}"`);
+} else {
+  console.log(" ok, got true");
+}
+stepHeader("test objectIncludes on wrong base types (array and object)");
+testResult = objectIncludes([1, 2, 3], { a: 1, b: 2 });
+if (testResult !== "wrong base type: one is an array, the other is not") {
+  gotError(`: got unexpected result "${testResult}"`);
+} else {
+  console.log(" ok, got proper error message");
+}
+stepHeader("test objectIncludes on wrong base types (object and array)");
+testResult = objectIncludes({ a: 1, b: 2 }, [1, 2, 3]);
+if (testResult !== "wrong base type: one is an array, the other is not") {
+  gotError(`: got unexpected result "${testResult}"`);
+} else {
+  console.log(" ok, got proper error message");
+}
+stepHeader("test objectIncludes on missing property");
+testResult = objectIncludes({ a: 1, b: { b: 21, c: 22 }, c: 3 }, { a: 1, b: { b: 21, d: 22 } });
+if (testResult !== `inclusiveObject has no property "b.d"`) {
+  gotError(`: got unexpected result "${testResult}"`);
+} else {
+  console.log(" ok, got proper error message");
+}
+stepHeader("test objectIncludes on non equal values");
+testResult = objectIncludes({ a: 1, b: { b: 21, c: 22 }, c: 3 }, { a: 1, b: { b: 21, c: 23 } });
+if (testResult !== `compared object values at property "b.c" differ`) {
+  gotError(`: got unexpected result "${testResult}"`);
+} else {
+  console.log(" ok, got proper error message");
 }
 
 if (errors > 0) {
