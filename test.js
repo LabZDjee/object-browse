@@ -151,6 +151,18 @@ if (testResult.completed !== false) {
 if (testResult.result !== panic) {
   gotError(": could not get returned message from generator");
 }
+stepHeader("throws when objectBrowse called on a non object");
+try {
+  testResult = objectBrowse(3, genWhichReturns);
+  gotError(": has not thrown as it should");
+} catch (e) {
+  const expectedSubString = "unexpected entity";
+  if (!e.message.includes(expectedSubString)) {
+    gotError(`: error message does not include "${expectedSubString}"`);
+  } else {
+    console.log(` ok, throws with a message including "${expectedSubString}"`);
+  }
+}
 stepHeader("test successful makeSubObjectFrom");
 testResult = makeSubObjectFrom(pattern, source);
 if (testResult.completed !== true) {
@@ -173,6 +185,24 @@ if (!testResult.result.includes(missingPropertyAsString)) {
   );
 } else {
   console.log(` ok, got message "${testResult.result}" which includes "${missingPropertyAsString}"`);
+}
+const testArray = [{ a: 1, b: 2, C: { ca: 33, bc: 34 } }];
+testResult = makeSubObjectFrom(testArray, testArray);
+stepHeader("test makeSubObjectFrom on an array");
+if (testResult.completed !== true || !_.isEqual(testResult.result, testArray)) {
+  gotError(
+    `: completed is ${testResult.completed} - result meeting expectations is ${_.isEqual(testResult.result, testArray)}`
+  );
+}
+stepHeader("failure when makeSubObjectFrom source is not an object or array");
+const sourceHasWrongType = "source in makeSubObjectFrom has wrong type";
+testResult = makeSubObjectFrom({}, 3);
+if (testResult.completed !== false) {
+  gotError(': should return a "completed" prop as false');
+} else if (!testResult.result.includes(sourceHasWrongType)) {
+  gotError(`: should find "${sourceHasWrongType}" in result message when wrong. Instead got: ${testResult.result}`);
+} else {
+  console.log(` ok, got message which includes "${sourceHasWrongType}"`);
 }
 
 if (errors > 0) {

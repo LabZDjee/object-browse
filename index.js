@@ -1,7 +1,5 @@
 /* jshint esversion: 6 */
 
-const _ = require("lodash");
-
 exports.objectBrowse = function (object, processor, initialValue) {
   const exceptionMessage = "Exception Message";
   const iter = processor(initialValue);
@@ -46,12 +44,19 @@ exports.objectBrowse = function (object, processor, initialValue) {
         }
       });
     } else {
-      throw new Error(`Fatal in objectBrowse at level ${level}, receiving an unpected entity of type ${typeof entity}`);
+      throw new Error(
+        `Fatal in objectBrowse at level ${level}, receiving an unexpected entity of type ${typeof entity}`
+      );
     }
   }
   try {
-    iter.next();
-    proc(object, 0);
+    const first = iter.next();
+    if (first.done === true) {
+      completed = false;
+      result = first.value;
+    } else {
+      proc(object, 0);
+    }
   } catch (error) {
     if (error.message === exceptionMessage) {
       completed = false;
@@ -64,9 +69,8 @@ exports.objectBrowse = function (object, processor, initialValue) {
 
 function* makeSubObjectFromGenerator(initialValue) {
   const initialValueNotObject = typeof initialValue !== "object";
-  const initialValueNotObjectMsg = `initialValue in makeSubObjectFrom has wrong type (${typeof initialValue}) instead of object`;
+  const initialValueNotObjectMsg = `source in makeSubObjectFrom has wrong type (${typeof initialValue}) instead of object`;
   if (initialValueNotObject) {
-    yield null;
     return initialValueNotObjectMsg;
   }
   const resultPointers = [];
@@ -87,7 +91,7 @@ function* makeSubObjectFromGenerator(initialValue) {
           (k) => initialValuePointers[lv + 1] === initialValuePointers[lv][k]
         )}.`;
       }
-      return `pattern in makeSubObjectFrom has no property ${props}${prop}`;
+      return `source in makeSubObjectFrom has no property ${props}${prop}`;
     }
     initialValuePointers[level] = currentInitialValuePointer[prop];
     if (type === 0) {
